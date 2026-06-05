@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Punt•Café — Dashboard Mayo 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+:root{--azul:#0057FF;--azul-light:#e8f0ff;--azul-mid:#3d7aff;--negro:#000;--gris-bg:#F5F5F5;--gris-dark:#404040;--gris-mid:#888;--blanco:#fff;--verde:#00C48C;--rojo:#FF4D4D}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--gris-bg);color:var(--negro);min-height:100vh}
+header{background:var(--negro);padding:20px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo-text{font-size:22px;font-weight:800;color:#fff;letter-spacing:-.5px}
+.logo-text span{color:var(--azul)}
+.header-sub{font-size:12px;color:var(--gris-mid);letter-spacing:2px;text-transform:uppercase}
+.badge-mes{background:var(--azul);color:#fff;font-size:11px;font-weight:700;padding:5px 14px;border-radius:20px;letter-spacing:1px;text-transform:uppercase}
+main{max-width:1100px;margin:0 auto;padding:28px 20px 60px}
+.section-title{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gris-mid);margin-bottom:14px}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:32px}
+.kpi-card{background:#fff;border-radius:16px;padding:22px 24px;position:relative;overflow:hidden;border:1px solid #e8e8e8}
+.kpi-card.highlight{background:var(--azul);border-color:var(--azul)}
+.kpi-card.highlight .kpi-label,.kpi-card.highlight .kpi-value,.kpi-card.highlight .kpi-sub{color:#fff!important}
+.kpi-card.highlight .kpi-sub{opacity:.75}
+.kpi-label{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--gris-mid);margin-bottom:8px}
+.kpi-value{font-size:28px;font-weight:800;color:var(--negro);line-height:1;margin-bottom:6px}
+.kpi-sub{font-size:12px;color:var(--gris-mid);font-weight:500}
+.kpi-sub.up{color:var(--verde)}
+.kpi-dot{width:60px;height:60px;background:var(--azul-light);border-radius:50%;position:absolute;top:-16px;right:-16px;opacity:.5}
+.kpi-card.highlight .kpi-dot{background:rgba(255,255,255,.15);opacity:1}
+.chart-row{display:grid;gap:14px;margin-bottom:32px}
+.chart-row-2{grid-template-columns:1fr 1fr}
+.chart-row-1{grid-template-columns:1fr}
+.chart-card{background:#fff;border-radius:16px;padding:24px;border:1px solid #e8e8e8}
+.chart-card-title{font-size:14px;font-weight:700;margin-bottom:4px}
+.chart-card-sub{font-size:12px;color:var(--gris-mid);margin-bottom:20px}
+canvas{max-height:260px}
+.socias-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:32px}
+.socia-card{background:#fff;border-radius:16px;padding:22px 24px;border:1px solid #e8e8e8;display:flex;align-items:center;gap:16px}
+.socia-avatar{width:48px;height:48px;border-radius:50%;background:var(--azul);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff;flex-shrink:0}
+.socia-avatar.secondary{background:var(--negro)}
+.socia-info .socia-name{font-size:13px;font-weight:700;margin-bottom:2px;text-transform:uppercase;letter-spacing:.5px}
+.socia-info .socia-amount{font-size:22px;font-weight:800;color:var(--azul);line-height:1.1}
+.socia-info .socia-pct{font-size:11px;color:var(--gris-mid)}
+.semanas-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:32px}
+.semana-card{background:#fff;border-radius:14px;padding:18px;border:1px solid #e8e8e8}
+.semana-num{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gris-mid);margin-bottom:6px}
+.semana-venta{font-size:18px;font-weight:800}
+.semana-utilidad{font-size:12px;font-weight:600;margin-top:4px;color:var(--verde)}
+.tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.tab-btn{padding:7px 16px;border-radius:20px;border:1.5px solid #e8e8e8;background:transparent;font-size:12px;font-weight:600;color:var(--gris-dark);cursor:pointer;font-family:'Inter',sans-serif}
+.tab-btn.active,.tab-btn:hover{background:var(--azul);border-color:var(--azul);color:#fff}
+footer{text-align:center;padding:24px;font-size:11px;color:var(--gris-mid);letter-spacing:1px;text-transform:uppercase}
+footer strong{color:var(--azul)}
+@media(max-width:640px){.chart-row-2{grid-template-columns:1fr}.semanas-grid{grid-template-columns:repeat(2,1fr)}.socias-grid{grid-template-columns:1fr}.kpi-grid{grid-template-columns:repeat(2,1fr)}.kpi-value{font-size:22px}header{flex-direction:column;gap:10px;text-align:center}}
+</style>
+</head>
+<body>
+<header>
+  <div><div class="logo-text">PUNT<span>•</span>CAFÉ</div><div class="header-sub">by cookies for you</div></div>
+  <div class="badge-mes">Mayo 2026</div>
+</header>
+<main>
+<div class="section-title">Resumen del mes</div>
+<div class="kpi-grid">
+  <div class="kpi-card highlight"><div class="kpi-dot"></div><div class="kpi-label">Venta Total</div><div class="kpi-value">$68,000</div><div class="kpi-sub">28 días operados</div></div>
+  <div class="kpi-card"><div class="kpi-dot"></div><div class="kpi-label">Utilidad Neta</div><div class="kpi-value">$17,011</div><div class="kpi-sub up">▲ 25% margen</div></div>
+  <div class="kpi-card"><div class="kpi-dot"></div><div class="kpi-label">Promedio Diario</div><div class="kpi-value">$2,429</div><div class="kpi-sub">por día</div></div>
+  <div class="kpi-card"><div class="kpi-dot"></div><div class="kpi-label">Mejor día</div><div class="kpi-value">$3,923</div><div class="kpi-sub">Jue 28/05</div></div>
+  <div class="kpi-card"><div class="kpi-dot"></div><div class="kpi-label">Tarjeta</div><div class="kpi-value">$31,626</div><div class="kpi-sub">46.5% del total</div></div>
+  <div class="kpi-card"><div class="kpi-dot"></div><div class="kpi-label">Efectivo</div><div class="kpi-value">$37,692</div><div class="kpi-sub">53.5% del total</div></div>
+</div>
+<div class="chart-row chart-row-1">
+  <div class="chart-card">
+    <div class="chart-card-title">Ventas por día</div>
+    <div class="chart-card-sub">Mayo 2026 · Venta total diaria</div>
+    <div class="tabs" id="tabVentas">
+      <button class="tab-btn active" onclick="setTab('all',event)">Todo el mes</button>
+      <button class="tab-btn" onclick="setTab('s101',event)">Semana 1</button>
+      <button class="tab-btn" onclick="setTab('s102',event)">Semana 2</button>
+      <button class="tab-btn" onclick="setTab('s103',event)">Semana 3</button>
+      <button class="tab-btn" onclick="setTab('s104',event)">Semana 4</button>
+    </div>
+    <canvas id="chartVentas"></canvas>
+  </div>
+</div>
+<div class="chart-row chart-row-2">
+  <div class="chart-card"><div class="chart-card-title">Tarjeta vs Efectivo</div><div class="chart-card-sub">Distribución acumulada</div><canvas id="chartPago"></canvas></div>
+  <div class="chart-card"><div class="chart-card-title">Venta por semana</div><div class="chart-card-sub">Comparativo semanal</div><canvas id="chartSemanas"></canvas></div>
+</div>
+<div class="section-title">Detalle por semana</div>
+<div class="semanas-grid">
+  <div class="semana-card"><div class="semana-num">Semana 1 · 4–10 mayo</div><div class="semana-venta">$18,020</div><div class="semana-utilidad">Utilidad $1,931</div></div>
+  <div class="semana-card"><div class="semana-num">Semana 2 · 11–17 mayo</div><div class="semana-venta">$13,643</div><div class="semana-utilidad">Utilidad $1,625</div></div>
+  <div class="semana-card"><div class="semana-num">Semana 3 · 18–24 mayo</div><div class="semana-venta">$18,648</div><div class="semana-utilidad">Utilidad $4,499</div></div>
+  <div class="semana-card"><div class="semana-num">Semana 4 · 25–31 mayo</div><div class="semana-venta">$19,007</div><div class="semana-utilidad">Utilidad $8,956 🔥</div></div>
+</div>
+<div class="section-title">Distribución por socia</div>
+<div class="socias-grid">
+  <div class="socia-card"><div class="socia-avatar">C</div><div class="socia-info"><div class="socia-name">Cristy</div><div class="socia-amount">$10,717</div><div class="socia-pct">63% · utilidad correspondiente</div></div></div>
+  <div class="socia-card"><div class="socia-avatar secondary">Ch</div><div class="socia-info"><div class="socia-name">Choco</div><div class="socia-amount">$6,294</div><div class="socia-pct">37% · utilidad correspondiente</div></div></div>
+</div>
+<div class="chart-row chart-row-1">
+  <div class="chart-card"><div class="chart-card-title">Venta vs Gastos vs Utilidad por semana</div><div class="chart-card-sub">Comparativo completo</div><canvas id="chartComparativo"></canvas></div>
+</div>
+</main>
+<footer><strong>Punt•Café</strong> · Dashboard financiero · Mayo 2026</footer>
+<script>
+const AZ='#0057FF',AZ2='#3d7aff',NG='#000',VD='#00C48C';
+const D=[
+{f:'04/05',m:2650,t:1015,e:1635,s:101},{f:'05/05',m:3255,t:1400,e:1855,s:101},
+{f:'06/05',m:2439,t:967,e:1472,s:101},{f:'07/05',m:2992,t:1882,e:1110,s:101},
+{f:'08/05',m:2227,t:1322,e:905,s:101},{f:'09/05',m:2327,t:1860,e:468,s:101},
+{f:'10/05',m:2130,t:0,e:2130,s:101},{f:'11/05',m:1375,t:295,e:1080,s:102},
+{f:'12/05',m:2380,t:825,e:1555,s:102},{f:'13/05',m:1507,t:595,e:912,s:102},
+{f:'14/05',m:2205,t:1355,e:850,s:102},{f:'15/05',m:2631,t:1075,e:1556,s:102},
+{f:'16/05',m:1950,t:1555,e:395,s:102},{f:'17/05',m:1595,t:0,e:1595,s:102},
+{f:'18/05',m:3292,t:1765,e:1527,s:103},{f:'19/05',m:2937,t:1392,e:1545,s:103},
+{f:'20/05',m:2456,t:1040,e:1417,s:103},{f:'21/05',m:2935,t:1440,e:1495,s:103},
+{f:'22/05',m:3031,t:909,e:2122,s:103},{f:'23/05',m:2342,t:1107,e:1235,s:103},
+{f:'24/05',m:1655,t:455,e:1200,s:103},{f:'25/05',m:3260,t:1640,e:1620,s:104},
+{f:'26/05',m:2157,t:1142,e:1015,s:104},{f:'27/05',m:2572,t:1372,e:1200,s:104},
+{f:'28/05',m:3923,t:1976,e:1947,s:104},{f:'29/05',m:1810,t:890,e:920,s:104},
+{f:'30/05',m:3640,t:2353,e:1287,s:104},{f:'31/05',m:1645,t:0,e:1645,s:104}
+];
+const S={101:{l:'S1 (4-10)',v:18020,g:15737,u:1931},102:{l:'S2 (11-17)',v:13643,g:11780,u:1625},103:{l:'S3 (18-24)',v:18648,g:13811,u:4499},104:{l:'S4 (25-31)',v:19007,g:9661,u:8956}};
+let cV=null;
+function setTab(tab,ev){document.querySelectorAll('#tabVentas .tab-btn').forEach(b=>b.classList.remove('active'));ev.target.classList.add('active');drawV(tab)}
+function drawV(tab){
+  const d=tab==='all'?D:D.filter(x=>x.s===parseInt(tab.replace('s','')));
+  if(cV)cV.destroy();
+  cV=new Chart(document.getElementById('chartVentas'),{
+    type:'bar',data:{labels:d.map(x=>x.f),datasets:[
+      {label:'Tarjeta',data:d.map(x=>x.t),backgroundColor:AZ,borderRadius:6,stack:'s'},
+      {label:'Efectivo',data:d.map(x=>x.e),backgroundColor:NG,borderRadius:6,stack:'s'}
+    ]},
+    options:{responsive:true,plugins:{legend:{position:'top',labels:{font:{family:'Inter',size:11},boxWidth:12}},tooltip:{callbacks:{label:c=>' '+c.dataset.label+': $'+c.parsed.y.toLocaleString('es-MX',{maximumFractionDigits:0})}}},scales:{x:{grid:{display:false},ticks:{font:{family:'Inter',size:10}}},y:{grid:{color:'#f0f0f0'},ticks:{font:{family:'Inter',size:10},callback:v=>'$'+(v/1000).toFixed(0)+'k'}}}}
+  });
+}
+new Chart(document.getElementById('chartPago'),{type:'doughnut',data:{labels:['Tarjeta','Efectivo'],datasets:[{data:[31626,37692],backgroundColor:[AZ,NG],borderWidth:0,hoverOffset:6}]},options:{responsive:true,cutout:'65%',plugins:{legend:{position:'bottom',labels:{font:{family:'Inter',size:11},boxWidth:12,padding:16}},tooltip:{callbacks:{label:c=>' '+c.label+': $'+c.parsed.toLocaleString('es-MX',{maximumFractionDigits:0})}}}}});
+new Chart(document.getElementById('chartSemanas'),{type:'bar',data:{labels:Object.values(S).map(s=>s.l),datasets:[{label:'Venta',data:Object.values(S).map(s=>s.v),backgroundColor:[AZ,'#b3c9ff',AZ2,AZ],borderRadius:8}]},options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' $'+c.parsed.y.toLocaleString('es-MX',{maximumFractionDigits:0})}}},scales:{x:{grid:{display:false},ticks:{font:{family:'Inter',size:10}}},y:{grid:{color:'#f0f0f0'},ticks:{font:{family:'Inter',size:10},callback:v=>'$'+(v/1000).toFixed(0)+'k'}}}}});
+new Chart(document.getElementById('chartComparativo'),{type:'bar',data:{labels:Object.values(S).map(s=>s.l),datasets:[{label:'Venta',data:Object.values(S).map(s=>s.v),backgroundColor:AZ,borderRadius:6},{label:'Gastos',data:Object.values(S).map(s=>s.g),backgroundColor:'#e0e0e0',borderRadius:6},{label:'Utilidad',data:Object.values(S).map(s=>s.u),backgroundColor:VD,borderRadius:6}]},options:{responsive:true,plugins:{legend:{position:'top',labels:{font:{family:'Inter',size:11},boxWidth:12}},tooltip:{callbacks:{label:c=>' '+c.dataset.label+': $'+c.parsed.y.toLocaleString('es-MX',{maximumFractionDigits:0})}}},scales:{x:{grid:{display:false},ticks:{font:{family:'Inter',size:10}}},y:{grid:{color:'#f0f0f0'},ticks:{font:{family:'Inter',size:10},callback:v=>'$'+(v/1000).toFixed(0)+'k'}}}}});
+drawV('all');
+</script>
+</body>
+</html>
